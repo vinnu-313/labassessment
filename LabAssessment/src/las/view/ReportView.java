@@ -1,0 +1,438 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package las.view;
+
+import java.awt.print.PrinterException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
+import las.config.MyConnection;
+
+/**
+ *
+ * @author Vinnu
+ */
+public class ReportView extends javax.swing.JDialog {
+
+    /**
+     * Creates new form ReportView
+     */
+    public ReportView(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
+        initComponents();
+    }
+
+    public class MyTableModel extends AbstractTableModel {
+
+        String[] columnNames = null;
+        Vector data = new Vector();
+
+        public MyTableModel(String usn) {
+            try {
+                columnNames = new String[6];
+                columnNames[0] = "Name";
+                columnNames[1] = "Subject";
+                columnNames[2] = "Execution";
+                columnNames[3] = "Write-up";
+                columnNames[4] = "Viva";
+                columnNames[5] = "Total";
+                Connection connection = MyConnection.getConnection();
+                PreparedStatement ps = connection.prepareStatement("SELECT i.usn,i.name,m.execution,m.writeup,m.viva,(m.writeup+m.execution+m.viva) as total, b.`subject` FROM info i, marks m, batch b where i.usn=m.usn and b.idbatch=m.batchid and i.usn = ?");
+                ps.setString(1, usn);
+                ResultSet resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    Vector t = new Vector();
+                    t.add(resultSet.getString(2));
+                    t.add(resultSet.getString(7));
+                    t.add(resultSet.getString(3));
+                    t.add(resultSet.getString(4));
+                    t.add(resultSet.getString(5));
+                    t.add(resultSet.getString(6));
+                    data.add(t);
+                }
+            } catch (Exception e) {
+                Logger.getLogger(ReportView.class.getName()).log(Level.SEVERE, null,e);
+            }
+        }
+
+        private MyTableModel(int batchId) {
+            try {
+                columnNames = new String[7];
+                columnNames[0] = "USN";
+                columnNames[1] = "Name";
+                columnNames[2] = "Subject";
+                columnNames[3] = "Execution";
+                columnNames[4] = "Write-up";
+                columnNames[5] = "Viva";
+                columnNames[6] = "Total";
+                Connection connection = MyConnection.getConnection();
+                PreparedStatement ps = connection.prepareStatement("SELECT i.usn,i.name,m.execution,m.writeup,m.viva,(m.writeup+m.execution+m.viva) as total, b.`subject` FROM info i, marks m, batch b where i.usn=m.usn and b.idbatch=m.batchid and b.idbatch = ?");
+                ps.setInt(1, batchId);
+                ResultSet resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    Vector t = new Vector();
+                    t.add(resultSet.getString(1));
+                    t.add(resultSet.getString(2));
+                    t.add(resultSet.getString(7));
+                    t.add(resultSet.getString(3));
+                    t.add(resultSet.getString(4));
+                    t.add(resultSet.getString(5));
+                    t.add(resultSet.getString(6));
+                    data.add(t);
+                }
+            } catch (Exception e) {
+                System.out.println("Error : " + e);
+            }
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columnNames.length;
+        }
+
+        @Override
+        public int getRowCount() {
+            return data.size();
+        }
+
+        @Override
+        public String getColumnName(int col) {
+            return columnNames[col];
+        }
+
+        @Override
+        public Object getValueAt(int row, int col) {
+            Vector v = (Vector) data.get(row);
+            return v.get(col);
+        }
+
+        @Override
+        public Class getColumnClass(int c) {
+            return getValueAt(0, c).getClass();
+        }
+
+        /*
+         * Don't need to implement this method unless your table's editable.
+         */
+        @Override
+        public boolean isCellEditable(int row, int col) {
+            //Note that the data/cell address is constant,
+            //no matter where the cell appears onscreen.
+            return false;
+        }
+    }
+
+    public TableModel getModel(String usn) {
+        return new MyTableModel(usn);
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        titleLabel = new javax.swing.JLabel();
+        titleSeperator = new javax.swing.JSeparator();
+        batchLabel = new javax.swing.JLabel();
+        batchTextField = new javax.swing.JTextField();
+        batchViewButton = new javax.swing.JButton();
+        usnLabel = new javax.swing.JLabel();
+        usnTextField = new javax.swing.JTextField();
+        usnViewButton = new javax.swing.JButton();
+        reportScroll = new javax.swing.JScrollPane();
+        reportTable = new javax.swing.JTable();
+        MainMenu = new javax.swing.JMenuBar();
+        fileMenu = new javax.swing.JMenu();
+        printItem = new javax.swing.JMenuItem();
+        closeItem = new javax.swing.JMenuItem();
+        exitItem = new javax.swing.JMenuItem();
+        reportsMenu = new javax.swing.JMenu();
+        batchItem = new javax.swing.JMenuItem();
+        usnItem = new javax.swing.JMenuItem();
+        helpMenu = new javax.swing.JMenu();
+        aboutItem = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Reports - Lab Assessment System v1.0b");
+
+        titleLabel.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        titleLabel.setForeground(new java.awt.Color(0, 0, 255));
+        titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        titleLabel.setText("Reports  - Lab Assessment System v1.0b");
+
+        batchLabel.setText("Batch ID : ");
+
+        batchViewButton.setText("View");
+        batchViewButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                batchViewButtonActionPerformed(evt);
+            }
+        });
+
+        usnLabel.setText("USN : ");
+
+        usnViewButton.setText("View");
+        usnViewButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                usnViewButtonActionPerformed(evt);
+            }
+        });
+
+        reportTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        reportScroll.setViewportView(reportTable);
+
+        fileMenu.setText("File");
+
+        printItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        printItem.setText("Print");
+        printItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                printItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(printItem);
+
+        closeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_MASK));
+        closeItem.setText("Close");
+        closeItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(closeItem);
+
+        exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
+        exitItem.setText("Exit");
+        exitItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exitItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(exitItem);
+
+        MainMenu.add(fileMenu);
+
+        reportsMenu.setText("Reports");
+
+        batchItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_MASK));
+        batchItem.setText("View By Batch");
+        batchItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                batchItemActionPerformed(evt);
+            }
+        });
+        reportsMenu.add(batchItem);
+
+        usnItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.CTRL_MASK));
+        usnItem.setText("View By USN");
+        usnItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                usnItemActionPerformed(evt);
+            }
+        });
+        reportsMenu.add(usnItem);
+
+        MainMenu.add(reportsMenu);
+
+        helpMenu.setText("Help");
+
+        aboutItem.setText("About");
+        aboutItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aboutItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(aboutItem);
+
+        MainMenu.add(helpMenu);
+
+        setJMenuBar(MainMenu);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(titleSeperator, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(titleLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(batchLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(batchTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(batchViewButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(usnLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(usnTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(usnViewButton)
+                        .addGap(10, 10, 10))
+                    .addComponent(reportScroll, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 820, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(titleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(titleSeperator, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(batchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(batchTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(batchViewButton)
+                    .addComponent(usnLabel)
+                    .addComponent(usnTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usnViewButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(reportScroll, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(36, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void batchViewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_batchViewButtonActionPerformed
+        try {
+            if (Integer.parseInt(batchTextField.getText()) >= 0) {
+                reportTable.setModel(new MyTableModel(Integer.parseInt(batchTextField.getText())));
+            } else {
+                JOptionPane.showMessageDialog(null, "Invalid Batch ID !");
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Invalid Batch ID !");
+        }
+    }//GEN-LAST:event_batchViewButtonActionPerformed
+
+    private void usnViewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usnViewButtonActionPerformed
+        if (usnTextField.getText().length() > 0) {
+            reportTable.setModel(new MyTableModel(usnTextField.getText()));
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid USN !");
+        }
+    }//GEN-LAST:event_usnViewButtonActionPerformed
+
+    private void closeItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeItemActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_closeItemActionPerformed
+
+    private void exitItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitItemActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_exitItemActionPerformed
+
+    private void printItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printItemActionPerformed
+        try {
+            reportTable.print();
+        } catch (PrinterException ex) {
+            Logger.getLogger(ReportView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_printItemActionPerformed
+
+    private void batchItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_batchItemActionPerformed
+        batchTextField.requestFocus();
+    }//GEN-LAST:event_batchItemActionPerformed
+
+    private void usnItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usnItemActionPerformed
+        usnTextField.requestFocus();
+    }//GEN-LAST:event_usnItemActionPerformed
+
+    private void aboutItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutItemActionPerformed
+       new AboutView(null, "About").showAbout();
+    }//GEN-LAST:event_aboutItemActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /*
+         * Set the Nimbus look and feel
+         */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /*
+         * If Nimbus (introduced in Java SE 6) is not available, stay with the
+         * default look and feel. For details see
+         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(ReportView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(ReportView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(ReportView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(ReportView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /*
+         * Create and display the dialog
+         */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                ReportView dialog = new ReportView(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
+            }
+        });
+    }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuBar MainMenu;
+    private javax.swing.JMenuItem aboutItem;
+    private javax.swing.JMenuItem batchItem;
+    private javax.swing.JLabel batchLabel;
+    private javax.swing.JTextField batchTextField;
+    private javax.swing.JButton batchViewButton;
+    private javax.swing.JMenuItem closeItem;
+    private javax.swing.JMenuItem exitItem;
+    private javax.swing.JMenu fileMenu;
+    private javax.swing.JMenu helpMenu;
+    private javax.swing.JMenuItem printItem;
+    private javax.swing.JScrollPane reportScroll;
+    private javax.swing.JTable reportTable;
+    private javax.swing.JMenu reportsMenu;
+    private javax.swing.JLabel titleLabel;
+    private javax.swing.JSeparator titleSeperator;
+    private javax.swing.JMenuItem usnItem;
+    private javax.swing.JLabel usnLabel;
+    private javax.swing.JTextField usnTextField;
+    private javax.swing.JButton usnViewButton;
+    // End of variables declaration//GEN-END:variables
+}
